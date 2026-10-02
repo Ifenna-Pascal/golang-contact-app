@@ -1,0 +1,8 @@
+mkdir golang-crudsqlc-rest
+cd golang-crudsqlc-rest/
+go mod init golang-crudsqlc-rest
+code .
+
+docker-compose up -d
+
+migrate create -ext sql -dir db/migration -seq init_schema

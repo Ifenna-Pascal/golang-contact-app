@@ -1,0 +1,242 @@
+basePath: /api
+definitions:
+  db.Contact:
+    properties:
+      contact_id:
+        type: string
+      created_at:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      phone_number:
+        type: string
+      street:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  schemas.ContactListResponse:
+    properties:
+      contacts:
+        items:
+          $ref: '#/definitions/db.Contact'
+        type: array
+      size:
+        example: 1
+        type: integer
+      status:
+        example: Successfully retrieved all contacts
+        type: string
+    type: object
+  schemas.ContactResponse:
+    properties:
+      contact:
+        $ref: '#/definitions/db.Contact'
+      status:
+        example: successfully created contact
+        type: string
+    type: object
+  schemas.CreateContact:
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+      phone_number:
+        type: string
+      street:
+        type: string
+    required:
+    - first_name
+    - last_name
+    - phone_number
+    - street
+    type: object
+  schemas.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+      status:
+        example: failed
+        type: string
+    type: object
+  schemas.UpdateContact:
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+      phone_number:
+        type: string
+      street:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: CRUD REST API for contacts, built with Gin and sqlc.
+  title: Contact API
+  version: "1.0"
+paths:
+  /contacts/:
+    get:
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Contacts per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ContactListResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+      summary: List contacts
+      tags:
+      - contacts
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Contact to create
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.CreateContact'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ContactResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+      summary: Create a contact
+      tags:
+      - contacts
+  /contacts/{contactId}:
+    delete:
+      parameters:
+      - description: Contact ID
+        format: uuid
+        in: path
+        name: contactId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+      summary: Delete a contact
+      tags:
+      - contacts
+    get:
+      parameters:
+      - description: Contact ID
+        format: uuid
+        in: path
+        name: contactId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ContactResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+      summary: Get a contact by ID
+      tags:
+      - contacts
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Contact ID
+        format: uuid
+        in: path
+        name: contactId
+        required: true
+        type: string
+      - description: Fields to update
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/schemas.UpdateContact'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schemas.ContactResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/schemas.ErrorResponse'
+      summary: Update a contact
+      tags:
+      - contacts
+  /healthcheck:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check
+      tags:
+      - health
+swagger: "2.0"
